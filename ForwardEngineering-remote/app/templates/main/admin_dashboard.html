@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - SG Technologies POS{% endblock %}
+
+{% block content %}
+<h1 class="mb-3">Admin Dashboard</h1>
+
+<!-- Stats Overview -->
+<div class="grid grid-4 mb-3">
+    <div class="stat-card">
+        <div class="stat-value">${{ daily_summary.total_revenue }}</div>
+        <div class="stat-label">Today's Revenue</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ daily_summary.total_transactions }}</div>
+        <div class="stat-label">Transactions Today</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ inventory_status.low_stock_count }}</div>
+        <div class="stat-label">Low Stock Items</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ rental_status.overdue_rentals }}</div>
+        <div class="stat-label">Overdue Rentals</div>
+    </div>
+</div>
+
+<div class="grid grid-2">
+    <!-- Quick Actions -->
+    <div class="card">
+        <h3 class="card-title mb-2">Quick Actions</h3>
+        <div class="flex gap-2" style="flex-wrap: wrap;">
+            <a href="{{ url_for('sales.new_sale') }}" class="btn btn-primary">New Sale</a>
+            <a href="{{ url_for('rentals.new_rental') }}" class="btn btn-secondary">New Rental</a>
+            <a href="{{ url_for('inventory.add_item') }}" class="btn btn-secondary">Add Item</a>
+            <a href="{{ url_for('employees.add_employee') }}" class="btn btn-secondary">Add Employee</a>
+            <a href="{{ url_for('reports.sales_report') }}" class="btn btn-secondary">Sales Report</a>
+        </div>
+    </div>
+    
+    <!-- Inventory Alerts -->
+    <div class="card">
+        <h3 class="card-title mb-2">Inventory Alerts</h3>
+        {% if inventory_status.out_of_stock_items %}
+            <div class="alert alert-error mb-1">
+                {{ inventory_status.out_of_stock_count }} items are out of stock!
+            </div>
+        {% endif %}
+        {% if inventory_status.low_stock_items %}
+            <div class="alert alert-info">
+                {{ inventory_status.low_stock_count }} items are running low
+            </div>
+        {% else %}
+            <p style="color: var(--text-secondary);">All items are well stocked!</p>
+        {% endif %}
+        <a href="{{ url_for('inventory.low_stock') }}" class="btn btn-sm btn-secondary mt-2">View Details</a>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="card mt-2">
+    <div class="card-header">
+        <h3 class="card-title">Recent Activity</h3>
+        <a href="{{ url_for('reports.activity_log') }}" class="btn btn-sm btn-secondary">View All</a>
+    </div>
+    
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Employee</th>
+                    <th>Action</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in recent_activity %}
+                <tr>
+                    <td>{{ log.created_at[:19] }}</td>
+                    <td>{{ log.employee_name }}</td>
+                    <td><span class="badge badge-info">{{ log.action }}</span></td>
+                    <td>{{ log.description or '-' }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="text-center" style="color: var(--text-secondary);">
+                        No recent activity
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+

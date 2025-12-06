@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Receipt - SG Technologies POS{% endblock %}
+
+{% block content %}
+<div style="max-width: 500px; margin: 0 auto;">
+    <div class="card">
+        <div class="text-center mb-3">
+            <h2>💳 SG Technologies</h2>
+            <p style="color: var(--text-secondary);">Point of Sale Receipt</p>
+        </div>
+        
+        <div style="border-top: 2px dashed var(--border); border-bottom: 2px dashed var(--border); padding: 1rem 0; margin: 1rem 0;">
+            <p><strong>Transaction ID:</strong> {{ sale.transaction_id }}</p>
+            <p><strong>Date:</strong> {{ sale.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+            <p><strong>Cashier:</strong> {{ sale.cashier.full_name }}</p>
+        </div>
+        
+        <table style="width: 100%; margin: 1rem 0;">
+            <thead>
+                <tr>
+                    <th style="text-align: left;">Item</th>
+                    <th style="text-align: center;">Qty</th>
+                    <th style="text-align: right;">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in sale.items %}
+                <tr>
+                    <td>{{ item.item.name }}</td>
+                    <td style="text-align: center;">{{ item.quantity }}</td>
+                    <td style="text-align: right;">${{ "%.2f"|format(item.line_total) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <div style="border-top: 2px dashed var(--border); padding-top: 1rem;">
+            <div class="flex justify-between mb-1">
+                <span>Subtotal:</span>
+                <span>${{ "%.2f"|format(sale.subtotal) }}</span>
+            </div>
+            <div class="flex justify-between mb-1">
+                <span>Tax ({{ "%.0f"|format(sale.tax_rate * 100) }}%):</span>
+                <span>${{ "%.2f"|format(sale.tax_amount) }}</span>
+            </div>
+            <div class="flex justify-between" style="font-size: 1.25rem; font-weight: bold;">
+                <span>Total:</span>
+                <span>${{ "%.2f"|format(sale.total) }}</span>
+            </div>
+            <div class="flex justify-between mt-2" style="color: var(--text-secondary);">
+                <span>Paid ({{ sale.payment_method }}):</span>
+                <span>${{ "%.2f"|format(sale.amount_paid) }}</span>
+            </div>
+            <div class="flex justify-between" style="color: var(--success);">
+                <span>Change:</span>
+                <span>${{ "%.2f"|format(sale.change_given) }}</span>
+            </div>
+        </div>
+        
+        <div class="text-center mt-3" style="color: var(--text-secondary);">
+            <p>Thank you for your purchase!</p>
+        </div>
+        
+        <div class="flex gap-2 mt-3">
+            <button onclick="window.print()" class="btn btn-secondary" style="flex: 1;">Print Receipt</button>
+            <a href="{{ url_for('sales.new_sale') }}" class="btn btn-primary" style="flex: 1;">New Sale</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Cashier Dashboard - SG Technologies POS{% endblock %}
+
+{% block content %}
+<h1 class="mb-3">Cashier Dashboard</h1>
+
+<div class="grid grid-3 mb-3">
+    <!-- New Sale -->
+    <div class="card text-center" style="cursor: pointer;" onclick="location.href='{{ url_for('sales.new_sale') }}'">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">🛒</div>
+        <h3>New Sale</h3>
+        <p style="color: var(--text-secondary);">Process a new sale transaction</p>
+        <a href="{{ url_for('sales.new_sale') }}" class="btn btn-primary mt-2">Start Sale</a>
+    </div>
+    
+    <!-- New Rental -->
+    <div class="card text-center" style="cursor: pointer;" onclick="location.href='{{ url_for('rentals.new_rental') }}'">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">📀</div>
+        <h3>New Rental</h3>
+        <p style="color: var(--text-secondary);">Create a new rental transaction</p>
+        <a href="{{ url_for('rentals.new_rental') }}" class="btn btn-primary mt-2">Start Rental</a>
+    </div>
+    
+    <!-- Process Return -->
+    <div class="card text-center" style="cursor: pointer;" onclick="location.href='{{ url_for('rentals.search_rentals') }}'">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">↩️</div>
+        <h3>Process Return</h3>
+        <p style="color: var(--text-secondary);">Handle rental returns</p>
+        <a href="{{ url_for('rentals.search_rentals') }}" class="btn btn-primary mt-2">Find Rental</a>
+    </div>
+</div>
+
+<div class="grid grid-2">
+    <!-- Sales History -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">My Recent Sales</h3>
+            <a href="{{ url_for('sales.sales_history') }}" class="btn btn-sm btn-secondary">View All</a>
+        </div>
+        <p style="color: var(--text-secondary);">View your recent sales transactions</p>
+    </div>
+    
+    <!-- Alerts -->
+    <div class="card">
+        <h3 class="card-title mb-2">Notifications</h3>
+        {% if low_stock_count > 0 %}
+            <div class="alert alert-info">
+                ⚠️ {{ low_stock_count }} items are running low on stock
+            </div>
+        {% else %}
+            <p style="color: var(--text-secondary);">No notifications at this time</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

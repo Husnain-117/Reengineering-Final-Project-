@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+
+{% block title %}New Sale - SG Technologies POS{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-3">
+    <h1>Point of Sale</h1>
+    <div id="transaction-id" style="color: var(--text-secondary);">
+        {% if sale %}Transaction: {{ sale.transaction_id }}{% endif %}
+    </div>
+</div>
+
+<div class="grid grid-2" style="grid-template-columns: 1fr 400px;">
+    <!-- Left: Item Entry -->
+    <div>
+        <!-- Item Search -->
+        <div class="card mb-2">
+            <h3 class="card-title mb-2">Add Items</h3>
+            <div class="flex gap-2">
+                <input type="text" id="item-code" class="form-control" 
+                       placeholder="Scan barcode or enter item code" autofocus>
+                <input type="number" id="quantity" class="form-control" value="1" min="1" style="width: 100px;">
+                <button onclick="addItem()" class="btn btn-primary">Add</button>
+            </div>
+        </div>
+        
+        <!-- Items List -->
+        <div class="card">
+            <h3 class="card-title mb-2">Cart Items</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Item</th>
+                            <th>Qty</th>
+                            <th>Price</th>
+                            <th>Total</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="cart-items">
+                        {% if sale %}
+                            {% for item in sale.items %}
+                            <tr data-item-id="{{ item.item_id }}">
+                                <td>{{ item.item.item_code }}</td>
+                                <td>{{ item.item.name }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>${{ "%.2f"|format(item.unit_price) }}</td>
+                                <td>${{ "%.2f"|format(item.line_total) }}</td>
+                                <td>
+                                    <button onclick="removeItem({{ item.item_id }})" class="btn btn-danger btn-sm">✕</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right: Totals & Payment -->
+    <div>
+        <div class="card">
+            <h3 class="card-title mb-2">Order Summary</h3>
+            
+            <div style="border-bottom: 1px solid var(--border); padding-bottom: 1rem; margin-bottom: 1rem;">
+                <div class="flex justify-between mb-1">
+                    <span>Subtotal:</span>
+                    <span id="subtotal">${{ "%.2f"|format(sale.subtotal) if sale else "0.00" }}</span>
+                </div>
+                <div class="flex justify-between mb-1">
+                    <span>Tax (6%):</span>
+                    <span id="tax">${{ "%.2f"|format(sale.tax_amount) if sale else "0.00" }}</span>
+                </div>
+                <div class="flex justify-between" style="font-size: 1.5rem; font-weight: bold; color: var(--highlight);">
+                    <span>Total:</span>
+                    <span id="total">${{ "%.2f"|format(sale.total) if sale else "0.00" }}</span>
+                </div>
+            </div>
+            
+            <!-- Payment Section -->
+            <div id="payment-section">
+                <div class="form-group">
+                    <label class="form-label">Payment Method</label>
+                    <select id="payment-method" class="form-control">
+                        <option value="Cash">Cash</option>
+                        <option value="Card">Card</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Amount Received</label>
+                    <input type="number" id="amount-paid" class="form-control" step="0.01" placeholder="0.00">
+                </div>
+                
+                <div class="flex justify-between mb-2" style="font-size: 1.25rem;">
+                    <span>Change:</span>
+                    <span id="change" style="color: var(--success);">$0.00</span>
+                </div>
+                
+                <button onclick="completeSale()" class="btn btn-success" style="width: 100%; padding: 1rem;">
+                    Complete Sale
+                </button>
+                
+                <button onclick="cancelSale()" class="btn btn-danger mt-2" style="width: 100%;">
+                    Cancel Sale
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let currentSaleId = {{ sale.id if sale else 'null' }};
+    
+    // Start new sale if none exists
+    if (!currentSaleId) {
+        startNewSale();
+    }
+    
+    async function startNewSale() {
+        const response = await fetch('/sales/start', { method: 'POST' });
+        const data = await response.json();
+        if (data.success) {
+            currentSaleId = data.sale.id;
+            document.getElementById('transaction-id').textContent = 'Transaction: ' + data.sale.transaction_id;
+        }
+    }
+    
+    async function addItem() {
+        const itemCode = document.getElementById('item-code').value.trim();
+        const quantity = parseInt(document.getElementById('quantity').value) || 1;
+        
+        if (!itemCode) return;
+        
+        const response = await fetch('/sales/add-item', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ item_code: itemCode, quantity: quantity })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            updateCart(data.sale);
+            document.getElementById('item-code').value = '';
+            document.getElementById('quantity').value = '1';
+            document.getElementById('item-code').focus();
+        } else {
+            alert(data.message);
+        }
+    }
+    
+    async function removeItem(itemId) {
+        const response = await fetch('/sales/remove-item', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ item_id: itemId })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            updateCart(data.sale);
+        } else {
+            alert(data.message);
+        }
+    }
+    
+    function updateCart(sale) {
+        const tbody = document.getElementById('cart-items');
+        tbody.innerHTML = '';
+        
+        sale.items.forEach(item => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${item.item_code}</td>
+                <td>${item.item_name}</td>
+                <td>${item.quantity}</td>
+                <td>$${item.unit_price.toFixed(2)}</td>
+                <td>$${item.line_total.toFixed(2)}</td>
+                <td><button onclick="removeItem(${item.item_id})" class="btn btn-danger btn-sm">✕</button></td>
+            `;
+            tbody.appendChild(tr);
+        });
+        
+        document.getElementById('subtotal').textContent = '$' + sale.subtotal.toFixed(2);
+        document.getElementById('tax').textContent = '$' + sale.tax_amount.toFixed(2);
+        document.getElementById('total').textContent = '$' + sale.total.toFixed(2);
+    }
+    
+    document.getElementById('amount-paid').addEventListener('input', function() {
+        const total = parseFloat(document.getElementById('total').textContent.replace('$', ''));
+        const paid = parseFloat(this.value) || 0;
+        const change = Math.max(0, paid - total);
+        document.getElementById('change').textContent = '$' + change.toFixed(2);
+    });
+    
+    async function completeSale() {
+        const amountPaid = parseFloat(document.getElementById('amount-paid').value) || 0;
+        const paymentMethod = document.getElementById('payment-method').value;
+        
+        const response = await fetch('/sales/complete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount_paid: amountPaid, payment_method: paymentMethod })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            window.location.href = '/sales/receipt/' + data.sale.id;
+        } else {
+            alert(data.message);
+        }
+    }
+    
+    async function cancelSale() {
+        if (!confirm('Are you sure you want to cancel this sale?')) return;
+        
+        const response = await fetch('/sales/cancel', { method: 'POST' });
+        const data = await response.json();
+        
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert(data.message);
+        }
+    }
+    
+    // Enter key to add item
+    document.getElementById('item-code').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') addItem();
+    });
+</script>
+{% endblock %}
+

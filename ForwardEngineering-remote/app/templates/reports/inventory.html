@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Inventory Report{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>📦 Inventory Report</h1>
+    <p class="text-secondary">Current inventory status and stock levels</p>
+</div>
+
+<!-- Summary Cards -->
+<div class="stats-grid mb-3">
+    <div class="stat-card">
+        <div class="stat-value">{{ status.total_items }}</div>
+        <div class="stat-label">Total Items</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">${{ "%.2f"|format(status.total_value) }}</div>
+        <div class="stat-label">Total Inventory Value</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value text-warning">{{ status.low_stock_items|length }}</div>
+        <div class="stat-label">Low Stock Items</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value text-danger">{{ status.out_of_stock_items|length }}</div>
+        <div class="stat-label">Out of Stock</div>
+    </div>
+</div>
+
+<!-- Low Stock Alerts -->
+{% if status.low_stock_items %}
+<div class="card mb-3">
+    <div class="card-header" style="background: var(--warning); color: #000;">
+        <h3>⚠️ Low Stock Items</h3>
+    </div>
+    <div class="card-body">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Item Code</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Current Stock</th>
+                    <th>Min Level</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in status.low_stock_items %}
+                <tr>
+                    <td>{{ item.item_code }}</td>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.category }}</td>
+                    <td><span class="badge badge-warning">{{ item.quantity }}</span></td>
+                    <td>{{ item.min_stock_level }}</td>
+                    <td>
+                        <a href="{{ url_for('inventory.edit_item', item_id=item.id) }}" class="btn btn-sm btn-primary">Restock</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Category Breakdown -->
+<div class="card mb-3">
+    <div class="card-header">
+        <h3>Category Breakdown</h3>
+    </div>
+    <div class="card-body">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Items Count</th>
+                    <th>Total Stock</th>
+                    <th>Category Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cat in status.by_category %}
+                <tr>
+                    <td>{{ cat.category }}</td>
+                    <td>{{ cat.count }}</td>
+                    <td>{{ cat.total_quantity }}</td>
+                    <td>${{ "%.2f"|format(cat.total_value) }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="text-center">No data available</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<a href="{{ url_for('reports.reports_dashboard') }}" class="btn btn-secondary">← Back to Reports</a>
+{% endblock %}
+

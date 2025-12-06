@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Employee Report{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>👥 Employee Performance Report</h1>
+    <p class="text-secondary">Employee activity and sales performance</p>
+</div>
+
+<!-- Employee Performance Table -->
+<div class="card">
+    <div class="card-header">
+        <h3>Employee Statistics</h3>
+    </div>
+    <div class="card-body">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Employee ID</th>
+                    <th>Name</th>
+                    <th>Role</th>
+                    <th>Sales Count</th>
+                    <th>Total Revenue</th>
+                    <th>Activities</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stat in employee_stats %}
+                <tr>
+                    <td>{{ stat.employee.employee_id }}</td>
+                    <td>{{ stat.employee.first_name }} {{ stat.employee.last_name }}</td>
+                    <td>
+                        <span class="badge {% if stat.employee.role == 'Admin' %}badge-info{% else %}badge-success{% endif %}">
+                            {{ stat.employee.role }}
+                        </span>
+                    </td>
+                    <td>{{ stat.sales_count }}</td>
+                    <td>${{ "%.2f"|format(stat.total_revenue) }}</td>
+                    <td>{{ stat.activity_count }}</td>
+                    <td>
+                        {% if stat.employee.is_active %}
+                        <span class="badge badge-success">Active</span>
+                        {% else %}
+                        <span class="badge badge-secondary">Inactive</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="text-center">No employees found</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<a href="{{ url_for('reports.reports_dashboard') }}" class="btn btn-secondary" style="margin-top: 20px;">← Back to Reports</a>
+{% endblock %}
+

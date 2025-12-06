@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}Reports Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>📊 Reports Dashboard</h1>
+    <p class="text-secondary">Generate and view system reports</p>
+</div>
+
+<div class="stats-grid">
+    <!-- Sales Report Card -->
+    <div class="card">
+        <div class="card-header">
+            <h3>💰 Sales Reports</h3>
+        </div>
+        <div class="card-body">
+            <p>View sales transactions, revenue analysis, and payment method breakdowns.</p>
+            <div class="report-stats">
+                <div class="stat-item">
+                    <span class="stat-value">{{ sales_count }}</span>
+                    <span class="stat-label">Total Sales</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value">${{ "%.2f"|format(total_revenue) }}</span>
+                    <span class="stat-label">Total Revenue</span>
+                </div>
+            </div>
+            <a href="{{ url_for('reports.sales_report') }}" class="btn btn-primary" style="margin-top: 15px;">
+                View Sales Report
+            </a>
+        </div>
+    </div>
+
+    <!-- Inventory Report Card -->
+    <div class="card">
+        <div class="card-header">
+            <h3>📦 Inventory Reports</h3>
+        </div>
+        <div class="card-body">
+            <p>Monitor stock levels, low inventory alerts, and category breakdowns.</p>
+            <div class="report-stats">
+                <div class="stat-item">
+                    <span class="stat-value">{{ items_count }}</span>
+                    <span class="stat-label">Total Items</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value text-warning">{{ low_stock_count }}</span>
+                    <span class="stat-label">Low Stock</span>
+                </div>
+            </div>
+            <a href="{{ url_for('reports.inventory_report') }}" class="btn btn-primary" style="margin-top: 15px;">
+                View Inventory Report
+            </a>
+        </div>
+    </div>
+
+    <!-- Employee Report Card -->
+    <div class="card">
+        <div class="card-header">
+            <h3>👥 Employee Reports</h3>
+        </div>
+        <div class="card-body">
+            <p>Track employee activity, login history, and performance metrics.</p>
+            <div class="report-stats">
+                <div class="stat-item">
+                    <span class="stat-value">{{ employees_count }}</span>
+                    <span class="stat-label">Employees</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value">{{ activities_count }}</span>
+                    <span class="stat-label">Activities (24h)</span>
+                </div>
+            </div>
+            <a href="{{ url_for('reports.employee_report') }}" class="btn btn-primary" style="margin-top: 15px;">
+                View Employee Report
+            </a>
+        </div>
+    </div>
+
+    <!-- Rental Report Card -->
+    <div class="card">
+        <div class="card-header">
+            <h3>📀 Rental Reports</h3>
+        </div>
+        <div class="card-body">
+            <p>View rental transactions, overdue items, and customer history.</p>
+            <div class="report-stats">
+                <div class="stat-item">
+                    <span class="stat-value">{{ rentals_count }}</span>
+                    <span class="stat-label">Total Rentals</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value text-danger">{{ overdue_count }}</span>
+                    <span class="stat-label">Overdue</span>
+                </div>
+            </div>
+            <a href="{{ url_for('rentals.rental_dashboard') }}" class="btn btn-primary" style="margin-top: 15px;">
+                View Rentals
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity Section -->
+<div class="card" style="margin-top: 30px;">
+    <div class="card-header">
+        <h3>📋 Recent System Activity</h3>
+    </div>
+    <div class="card-body">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Employee</th>
+                    <th>Action</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in recent_activities %}
+                <tr>
+                    <td>{{ log.created_at.strftime('%Y-%m-%d %H:%M') if log.created_at else 'N/A' }}</td>
+                    <td>{{ log.employee.first_name if log.employee else 'System' }} {{ log.employee.last_name if log.employee else '' }}</td>
+                    <td>
+                        <span class="badge 
+                            {% if 'login' in log.action %}badge-success
+                            {% elif 'logout' in log.action %}badge-secondary
+                            {% elif 'sale' in log.action %}badge-primary
+                            {% elif 'rental' in log.action %}badge-info
+                            {% else %}badge-default{% endif %}">
+                            {{ log.action }}
+                        </span>
+                    </td>
+                    <td>{{ log.description or '-' }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="text-center">No recent activity</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+.report-stats {
+    display: flex;
+    gap: 30px;
+    margin-top: 15px;
+}
+.stat-item {
+    display: flex;
+    flex-direction: column;
+}
+.stat-value {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: var(--highlight);
+}
+.stat-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+.badge-default {
+    background: var(--border);
+}
+</style>
+{% endblock %}
+

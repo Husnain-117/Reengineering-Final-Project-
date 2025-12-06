@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Rentals - SG Technologies POS{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-3">
+    <h1>Rental Management</h1>
+    <a href="{{ url_for('rentals.new_rental') }}" class="btn btn-primary">+ New Rental</a>
+</div>
+
+<div class="grid grid-2 mb-3">
+    <div class="stat-card">
+        <div class="stat-value">{{ active_rentals|length }}</div>
+        <div class="stat-label">Active Rentals</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value" style="color: var(--danger);">{{ overdue_rentals|length }}</div>
+        <div class="stat-label">Overdue Rentals</div>
+    </div>
+</div>
+
+{% if overdue_rentals %}
+<div class="card mb-2">
+    <h3 class="card-title mb-2" style="color: var(--danger);">⚠️ Overdue Rentals</h3>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Rental ID</th>
+                    <th>Customer Phone</th>
+                    <th>Due Date</th>
+                    <th>Days Overdue</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for rental in overdue_rentals %}
+                <tr>
+                    <td>{{ rental.rental_id }}</td>
+                    <td>{{ rental.customer_phone }}</td>
+                    <td>{{ rental.due_date.strftime('%Y-%m-%d') if rental.due_date else '-' }}</td>
+                    <td><span class="badge badge-danger">Overdue</span></td>
+                    <td>
+                        <a href="{{ url_for('rentals.process_return', rental_id=rental.id) }}" class="btn btn-success btn-sm">Process Return</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Active Rentals</h3>
+        <a href="{{ url_for('rentals.search_rentals') }}" class="btn btn-secondary btn-sm">Search</a>
+    </div>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Rental ID</th>
+                    <th>Customer Phone</th>
+                    <th>Items</th>
+                    <th>Due Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for rental in active_rentals %}
+                <tr>
+                    <td>{{ rental.rental_id }}</td>
+                    <td>{{ rental.customer_phone }}</td>
+                    <td>{{ rental.items.count() }} items</td>
+                    <td>{{ rental.due_date.strftime('%Y-%m-%d') if rental.due_date else '-' }}</td>
+                    <td>
+                        {% if rental.status == 'overdue' %}
+                        <span class="badge badge-danger">Overdue</span>
+                        {% else %}
+                        <span class="badge badge-success">Active</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('rentals.view_rental', rental_id=rental.id) }}" class="btn btn-secondary btn-sm">View</a>
+                        <a href="{{ url_for('rentals.process_return', rental_id=rental.id) }}" class="btn btn-success btn-sm">Return</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center" style="color: var(--text-secondary);">No active rentals</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+

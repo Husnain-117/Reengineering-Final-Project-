@@ -1,0 +1,17 @@
+{
+  "counts": {
+    "products": 101,
+    "rentalItems": 24,
+    "employees": 12,
+    "customers": 13,
+    "rentalsEntries": 3357,
+    "orders": 26
+  },
+  "errors": {
+    "products": 0,
+    "rentalItems": 0,
+    "employees": 0,
+    "userDatabase": 0,
+    "sales": 0
+  }
+}

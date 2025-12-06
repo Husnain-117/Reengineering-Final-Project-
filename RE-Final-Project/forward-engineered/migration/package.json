@@ -1,0 +1,14 @@
+{
+  "name": "pos-forward-migration",
+  "version": "0.1.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "dry-run": "node index.js --dry-run",
+    "migrate": "node index.js --commit"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "mongoose": "^8.6.0"
+  }
+}

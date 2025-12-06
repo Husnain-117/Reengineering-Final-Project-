@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Employee Management - SG Technologies POS{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-3">
+    <h1>Employee Management</h1>
+    <a href="{{ url_for('employees.add_employee') }}" class="btn btn-primary">+ Add Employee</a>
+</div>
+
+<div class="card">
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for employee in employees %}
+                <tr>
+                    <td>{{ employee.employee_id }}</td>
+                    <td>{{ employee.full_name }}</td>
+                    <td>
+                        <span class="badge {% if employee.is_admin %}badge-warning{% else %}badge-info{% endif %}">
+                            {{ employee.role }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if employee.is_active %}
+                        <span class="badge badge-success">Active</span>
+                        {% else %}
+                        <span class="badge badge-danger">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ employee.created_at.strftime('%Y-%m-%d') if employee.created_at else '-' }}</td>
+                    <td>
+                        <a href="{{ url_for('employees.edit_employee', employee_id=employee.id) }}" class="btn btn-secondary btn-sm">Edit</a>
+                        {% if employee.id != current_user.id %}
+                        <form action="{{ url_for('employees.delete_employee', employee_id=employee.id) }}" method="POST" style="display: inline;">
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete this employee?')">Delete</button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center" style="color: var(--text-secondary);">
+                        No employees found
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Item - {{ item.name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Edit Item</h1>
+    <p class="text-secondary">Update item details for {{ item.name }}</p>
+</div>
+
+<div class="card" style="max-width: 600px;">
+    <div class="card-header">
+        <h3>Item Details</h3>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('inventory.update_item', item_id=item.id) }}">
+            <div class="form-group">
+                <label for="item_code">Item Code</label>
+                <input type="text" id="item_code" name="item_code" class="form-control" 
+                       value="{{ item.item_code }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="name">Item Name</label>
+                <input type="text" id="name" name="name" class="form-control" 
+                       value="{{ item.name }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" class="form-control" 
+                          rows="3">{{ item.description or '' }}</textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="category">Category</label>
+                <select id="category" name="category" class="form-control">
+                    <option value="General" {% if item.category == 'General' %}selected{% endif %}>General</option>
+                    <option value="Produce" {% if item.category == 'Produce' %}selected{% endif %}>Produce</option>
+                    <option value="Meat" {% if item.category == 'Meat' %}selected{% endif %}>Meat</option>
+                    <option value="Dairy" {% if item.category == 'Dairy' %}selected{% endif %}>Dairy</option>
+                    <option value="Bakery" {% if item.category == 'Bakery' %}selected{% endif %}>Bakery</option>
+                    <option value="Beverages" {% if item.category == 'Beverages' %}selected{% endif %}>Beverages</option>
+                    <option value="Snacks" {% if item.category == 'Snacks' %}selected{% endif %}>Snacks</option>
+                    <option value="Household" {% if item.category == 'Household' %}selected{% endif %}>Household</option>
+                    <option value="Specialty" {% if item.category == 'Specialty' %}selected{% endif %}>Specialty</option>
+                    <option value="DVD Rentals" {% if item.category == 'DVD Rentals' %}selected{% endif %}>DVD Rentals</option>
+                </select>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group" style="flex: 1; margin-right: 10px;">
+                    <label for="price">Price ($)</label>
+                    <input type="number" id="price" name="price" class="form-control" 
+                           value="{{ item.price }}" step="0.01" min="0" required>
+                </div>
+                
+                <div class="form-group" style="flex: 1;">
+                    <label for="quantity">Quantity</label>
+                    <input type="number" id="quantity" name="quantity" class="form-control" 
+                           value="{{ item.quantity }}" min="0" required>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group" style="flex: 1; margin-right: 10px;">
+                    <label for="min_stock_level">Min Stock Level</label>
+                    <input type="number" id="min_stock_level" name="min_stock_level" class="form-control" 
+                           value="{{ item.min_stock_level }}" min="0">
+                </div>
+                
+                <div class="form-group" style="flex: 1;">
+                    <label for="is_rentable">Rentable Item</label>
+                    <select id="is_rentable" name="is_rentable" class="form-control">
+                        <option value="0" {% if not item.is_rentable %}selected{% endif %}>No</option>
+                        <option value="1" {% if item.is_rentable %}selected{% endif %}>Yes</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-actions" style="margin-top: 20px; display: flex; gap: 10px;">
+                <button type="submit" class="btn btn-primary">
+                    <span style="margin-right: 5px;">💾</span> Update Item
+                </button>
+                <a href="{{ url_for('inventory.inventory_list') }}" class="btn btn-secondary">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.form-row {
+    display: flex;
+    gap: 10px;
+}
+</style>
+{% endblock %}
+

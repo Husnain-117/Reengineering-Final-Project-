@@ -1,0 +1,11 @@
+# Folders
+api/node_modules/
+migration/node_modules/
+
+# Environment secrets
+api/.env
+migration/.env
+
+# Logs and build outputs
+**/*.log
+dist/
