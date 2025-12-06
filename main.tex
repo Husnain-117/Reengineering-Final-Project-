@@ -1,0 +1,183 @@
+\documentclass[12pt,a4paper]{report}
+
+%-------------------------------------------------
+% Packages
+%-------------------------------------------------
+\usepackage[margin=1in]{geometry}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{courier}
+\usepackage{listings}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{float}
+
+%-------------------------------------------------
+% Hyperref setup
+%-------------------------------------------------
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    urlcolor=blue,
+    citecolor=blue,
+    pdfauthor={Abdul Faheem, Sheryar Ali, Husnain Akram},
+    pdftitle={SG Technologies POS System Reengineering - Final Report}
+}
+
+%-------------------------------------------------
+% Header / Footer
+%-------------------------------------------------
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{SG Technologies POS Reengineering}
+\fancyhead[R]{\leftmark}
+\fancyfoot[L]{BSSE - Software Reengineering}
+\fancyfoot[R]{\thepage}
+
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+\renewcommand{\sectionmark}[1]{\markright{#1}}
+
+%-------------------------------------------------
+% Listings
+%-------------------------------------------------
+\lstset{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  columns=fullflexible,
+  showstringspaces=false
+}
+
+\begin{document}
+
+%-------------------------------------------------
+% Title Page
+%-------------------------------------------------
+\begin{titlepage}
+  \centering
+  \vspace*{1.5cm}
+
+  {\Huge\bfseries SG Technologies\par}
+  \vspace{0.5cm}
+  {\LARGE\bfseries Point of Sale System\par}
+  \vspace{0.3cm}
+  {\LARGE\bfseries Reengineering Project\par}
+
+  \vspace{1.5cm}
+
+  \rule{\textwidth}{1.5pt}
+  \vspace{0.5cm}
+  {\Large\bfseries Final Report\par}
+  \vspace{0.3cm}
+  {\large Software Reengineering -- All 10 Rubric Points\par}
+  \rule{\textwidth}{1.5pt}
+
+  \vspace{2cm}
+
+  {\bfseries Course:} Software Reengineering\par
+  \vspace{0.3cm}
+  {\bfseries Program:} BS Software Engineering\par
+  \vspace{0.3cm}
+  {\bfseries Semester:} Fall 2024\par
+
+  \vspace{2cm}
+
+  {\Large\bfseries Team Members\par}
+  \vspace{0.5cm}
+  \begin{tabular}{l l}
+    \toprule
+    \textbf{Name} & \textbf{Roll Number} \\
+    \midrule
+    Abdul Faheem  & 22i-2629 \\
+    Sheryar Ali   & 22i-2623 \\
+    Husnain Akram & 22i-2464 \\
+    \bottomrule
+  \end{tabular}
+
+  \vfill
+
+  {\bfseries Submission Date:} \today\par
+  \vspace{0.5cm}
+  {\small Department of Computer Science\par}
+
+  \vspace*{1cm}
+\end{titlepage}
+
+%-------------------------------------------------
+% Abstract / Project Overview
+%-------------------------------------------------
+\chapter*{Project Overview}
+\addcontentsline{toc}{chapter}{Project Overview}
+
+This report documents the complete software reengineering of the SG Technologies
+Point-of-Sale (POS) system. The legacy system was a Java Swing desktop application
+that stored all data in plain text files (\texttt{.txt}). Through a systematic
+reengineering process, the system has been transformed into a modern, web-based
+application using Python/Flask with a normalized relational database backend.
+
+\section*{Legacy System Characteristics}
+\begin{itemize}[leftmargin=1.2cm]
+  \item Java Swing desktop application
+  \item Plain text file storage (no database)
+  \item Plaintext password storage
+  \item Monolithic architecture with mixed concerns
+  \item No automated testing
+  \item Limited scalability and maintainability
+\end{itemize}
+
+\section*{Reengineered System Characteristics}
+\begin{itemize}[leftmargin=1.2cm]
+  \item Python/Flask web application
+  \item SQLite/PostgreSQL relational database with SQLAlchemy ORM
+  \item Bcrypt password hashing with secure session management
+  \item Layered architecture (MVC + Service Layer)
+  \item Comprehensive test suite with 89\% coverage
+  \item Modern, responsive web UI
+  \item Role-based access control and audit logging
+\end{itemize}
+
+\section*{Report Structure}
+
+This report is organized according to the 10 rubric points:
+
+\begin{enumerate}
+  \item \textbf{Inventory Analysis \& Document Restructuring} -- Asset inventory and documentation organization
+  \item \textbf{Reverse Engineering \& Smell Detection} -- Legacy analysis and smell identification
+  \item \textbf{Code Restructuring} -- Refactoring proposals and implementation
+  \item \textbf{Data Restructuring Report} -- Database schema design and migration
+  \item \textbf{Forward Engineering Report} -- New system architecture and implementation
+  \item \textbf{Reengineering Plan \& Migration} -- Timeline, phases, and migration strategy
+  \item \textbf{Refactoring Documentation} -- Individual refactorings per team member
+  \item \textbf{Risk Analysis \& Testing} -- Risk identification, mitigation, and test coverage
+  \item \textbf{Dual Documentation} -- Legacy vs Reengineered system comparison
+  \item \textbf{Work Distribution} -- Team contributions and sign-off
+\end{enumerate}
+
+%-------------------------------------------------
+% Table of Contents
+%-------------------------------------------------
+\tableofcontents
+\clearpage
+
+\pagenumbering{arabic}
+\setcounter{page}{1}
+\onehalfspacing
+
+%=================================================
+% Include section files
+%=================================================
+\input{sections_1_3}
+\input{sections_4_6}
+\input{sections_7_10}
+
+\end{document}
